@@ -1,117 +1,702 @@
+bash
+
+cat > /home/claude/vidhan.html << 'HTMLEOF'
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dialogue Tree Maker</title>
+<title>VIDHAN IS ENRICHED, yes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Bebas+Neue&family=DM+Sans:opsz,wght@9..40,200;9..40,300;9..40,400&display=swap" rel="stylesheet">
 <style>
-    #canvas {
-        border: 1px solid black;
-        margin: 10px;
-        cursor: crosshair;
-    }
+:root{--bg:#F7F4EE;--bg2:#EFECE3;--ink:#18180F;--saffron:#E8520A;--gold:#B8892A;--muted:#7A776C;--line:rgba(24,24,15,0.1);--white:#FDFBF7}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;font-weight:300;min-height:100vh}
+.screen{display:none;min-height:100vh}
+.screen.active{display:flex;flex-direction:column}
+#screen-welcome{align-items:center;justify-content:center;text-align:center;padding:40px;position:relative;overflow:hidden}
+.welcome-bg-glyph{position:absolute;font-family:'Cormorant Garamond',serif;font-size:40vw;color:rgba(232,82,10,0.04);user-select:none;pointer-events:none;top:50%;left:50%;transform:translate(-50%,-50%);line-height:1;font-style:italic}
+.welcome-inner{position:relative;z-index:2;max-width:680px}
+.welcome-eyebrow{font-size:9px;letter-spacing:.45em;text-transform:uppercase;color:var(--saffron);margin-bottom:28px;display:flex;align-items:center;justify-content:center;gap:12px}
+.welcome-eyebrow::before,.welcome-eyebrow::after{content:'';width:32px;height:1px;background:var(--saffron);opacity:.5}
+.welcome-title{font-family:'Cormorant Garamond',serif;font-size:clamp(44px,9vw,100px);font-weight:300;line-height:.92;letter-spacing:-.03em;margin-bottom:12px}
+.welcome-title em{font-style:italic;color:var(--saffron)}
+.welcome-yes{font-family:'Bebas Neue',sans-serif;font-size:clamp(12px,2vw,18px);letter-spacing:.5em;color:var(--muted);margin-bottom:48px;display:block}
+.welcome-desc{font-size:15px;line-height:1.8;color:var(--muted);max-width:420px;margin:0 auto 52px;font-family:'Cormorant Garamond',serif;font-style:italic}
+.begin-btn{display:inline-flex;align-items:center;gap:14px;background:var(--ink);color:var(--white);border:none;padding:18px 44px;font-family:'DM Sans',sans-serif;font-size:10px;letter-spacing:.35em;text-transform:uppercase;cursor:pointer;transition:background .25s,transform .15s;font-weight:400}
+.begin-btn:hover{background:var(--saffron);transform:translateY(-1px)}
+.welcome-topics{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:40px}
+.topic-pill{font-size:9px;letter-spacing:.2em;text-transform:uppercase;padding:5px 14px;border:1px solid var(--line);color:var(--muted)}
+#screen-quiz{flex-direction:column}
+.quiz-header{position:sticky;top:0;z-index:50;background:var(--bg);border-bottom:1px solid var(--line);padding:0 40px}
+.quiz-header-inner{display:flex;align-items:center;justify-content:space-between;height:60px}
+.quiz-logo{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:.3em}
+.quiz-logo span{color:var(--saffron)}
+.quiz-topic-label{font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--saffron);font-weight:400}
+.quiz-counter{font-family:'Cormorant Garamond',serif;font-size:14px;color:var(--muted);font-style:italic}
+.progress-strip{height:2px;background:var(--line)}
+.progress-fill{height:100%;background:var(--saffron);transition:width .4s cubic-bezier(.4,0,.2,1)}
+.topic-dots{display:flex;gap:8px;padding:12px 40px;border-bottom:1px solid var(--line);background:var(--bg);align-items:center;flex-wrap:wrap}
+.topic-dot-item{display:flex;align-items:center;gap:6px}
+.topic-dot{width:7px;height:7px;border-radius:50%;background:var(--line);transition:background .3s;flex-shrink:0}
+.topic-dot.done{background:var(--saffron)}
+.topic-dot.current{background:var(--ink);box-shadow:0 0 0 2px var(--bg),0 0 0 3px var(--ink)}
+.topic-dot-label{font-size:8px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted)}
+.quiz-body{flex:1;display:flex;flex-direction:column;align-items:center;padding:64px 40px 80px;max-width:760px;margin:0 auto;width:100%}
+.q-section-intro{width:100%;margin-bottom:56px;padding-bottom:40px;border-bottom:1px solid var(--line)}
+.q-section-num{font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:.4em;color:var(--saffron);margin-bottom:12px}
+.q-section-name{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:300;letter-spacing:-.02em;margin-bottom:10px}
+.q-section-desc{font-size:13px;color:var(--muted);line-height:1.7}
+.question-wrap{width:100%;animation:qIn .35s cubic-bezier(.4,0,.2,1) both}
+@keyframes qIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.q-number{font-size:9px;letter-spacing:.3em;color:var(--muted);text-transform:uppercase;margin-bottom:16px}
+.q-text{font-family:'Cormorant Garamond',serif;font-size:clamp(20px,3vw,28px);font-weight:400;line-height:1.35;margin-bottom:36px;letter-spacing:-.01em}
+.options-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;margin-bottom:32px}
+.options-grid.single-col{grid-template-columns:1fr}
+.opt-btn{background:var(--white);border:1px solid var(--line);padding:16px 20px;text-align:left;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:300;color:var(--ink);transition:all .18s;line-height:1.4}
+.opt-btn:hover{border-color:var(--saffron);background:rgba(232,82,10,.04)}
+.opt-btn.selected{border-color:var(--saffron);background:var(--saffron);color:var(--white)}
+.opt-btn.multi-selected{border-color:var(--ink);background:var(--ink);color:var(--white)}
+.opt-label{font-family:'Bebas Neue',sans-serif;font-size:10px;letter-spacing:.2em;color:var(--muted);margin-right:8px}
+.opt-btn.selected .opt-label,.opt-btn.multi-selected .opt-label{color:rgba(255,255,255,.5)}
+.q-hint{font-size:10px;letter-spacing:.1em;color:var(--muted);margin-bottom:24px}
+.next-btn{background:var(--ink);color:var(--white);border:none;padding:16px 40px;font-family:'DM Sans',sans-serif;font-size:10px;letter-spacing:.3em;text-transform:uppercase;cursor:pointer;transition:background .2s;font-weight:400;align-self:flex-start}
+.next-btn:hover{background:var(--saffron)}
+.next-btn:disabled{opacity:.3;cursor:not-allowed}
+#screen-transition{align-items:center;justify-content:center;text-align:center}
+.transition-inner{max-width:480px;padding:40px}
+.transition-check{width:56px;height:56px;border:1px solid var(--saffron);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 28px;color:var(--saffron);font-size:22px}
+.transition-title{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;margin-bottom:12px}
+.transition-sub{font-size:13px;color:var(--muted);margin-bottom:36px;line-height:1.7}
+.next-topic-btn{background:var(--ink);color:var(--white);border:none;padding:16px 40px;font-family:'DM Sans',sans-serif;font-size:10px;letter-spacing:.3em;text-transform:uppercase;cursor:pointer;transition:background .2s}
+.next-topic-btn:hover{background:var(--saffron)}
+#screen-generating{align-items:center;justify-content:center;text-align:center}
+.gen-inner{max-width:480px;padding:40px}
+.gen-mandala{width:64px;height:64px;border:1px solid var(--saffron);border-top-color:transparent;border-radius:50%;animation:spin 1.2s linear infinite;margin:0 auto 32px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.gen-title{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:300;margin-bottom:12px}
+.gen-sub{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:24px}
+.gen-status{font-size:11px;letter-spacing:.15em;color:var(--saffron);text-transform:uppercase;height:20px}
+.gen-dots{display:flex;gap:12px;justify-content:center;margin-top:32px;flex-wrap:wrap}
+.gen-dot{width:8px;height:8px;background:var(--line);border-radius:50%;transition:background .3s}
+.gen-dot.active{background:var(--saffron)}
+#screen-main{flex-direction:column;min-height:100vh}
+.main-header{position:sticky;top:0;z-index:50;background:var(--bg);border-bottom:1px solid var(--line);padding:0 40px;display:flex;align-items:center;justify-content:space-between;height:60px}
+.main-logo{font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:.3em}
+.main-logo span{color:var(--saffron)}
+.header-right{display:flex;align-items:center;gap:24px}
+.countdown-badge{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted)}
+.countdown-time{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--saffron);letter-spacing:.1em}
+.retake-btn{font-size:9px;letter-spacing:.25em;text-transform:uppercase;padding:8px 16px;background:none;border:1px solid var(--line);color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.retake-btn:hover{border-color:var(--saffron);color:var(--saffron)}
+.tab-nav{border-bottom:1px solid var(--line);padding:0 40px;display:flex;overflow-x:auto;background:var(--bg);position:sticky;top:60px;z-index:40;scrollbar-width:none}
+.tab-nav::-webkit-scrollbar{display:none}
+.tab-btn{font-size:9px;letter-spacing:.25em;text-transform:uppercase;padding:16px 22px;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;color:var(--muted);font-family:'DM Sans',sans-serif;font-weight:400;white-space:nowrap;transition:color .2s,border-color .2s}
+.tab-btn:hover{color:var(--ink)}
+.tab-btn.active{color:var(--ink);border-bottom-color:var(--saffron)}
+.dash-section{display:none;padding:60px 40px 80px}
+.dash-section.active{display:block}
+.dash-section-header{margin-bottom:48px}
+.dash-section-eyebrow{font-size:9px;letter-spacing:.4em;text-transform:uppercase;color:var(--saffron);margin-bottom:10px}
+.dash-section-title{font-family:'Cormorant Garamond',serif;font-size:clamp(36px,5vw,58px);font-weight:300;letter-spacing:-.025em;line-height:1}
+.dash-section-title em{font-style:italic;color:var(--saffron)}
+.recs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1px;background:var(--line)}
+.rec-card{background:var(--bg);padding:32px 28px;position:relative;transition:background .2s;animation:cardIn .4s ease both}
+@keyframes cardIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.rec-card:nth-child(1){animation-delay:.05s}.rec-card:nth-child(2){animation-delay:.10s}.rec-card:nth-child(3){animation-delay:.15s}.rec-card:nth-child(4){animation-delay:.20s}.rec-card:nth-child(5){animation-delay:.25s}.rec-card:nth-child(6){animation-delay:.30s}
+.rec-card:hover{background:var(--bg2)}
+.rec-card-stripe{position:absolute;left:0;top:0;width:2px;height:100%}
+.rec-num{font-family:'Bebas Neue',sans-serif;font-size:10px;letter-spacing:.2em;color:var(--muted);margin-bottom:18px}
+.rec-title{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:400;line-height:1.25;margin-bottom:6px;letter-spacing:-.01em}
+.rec-meta{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.rec-why{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:var(--muted);line-height:1.6;margin-bottom:14px}
+.rec-tag{display:inline-block;font-size:8px;letter-spacing:.2em;text-transform:uppercase;padding:3px 10px;border:1px solid currentColor}
+.dash-loading{text-align:center;padding:80px 20px}
+.dash-spinner{width:36px;height:36px;border:1px solid var(--saffron);border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px}
+.dash-loading p{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--muted);font-size:16px}
+.dash-error{text-align:center;padding:60px 20px}
+.dash-error p{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--muted);margin-bottom:20px;font-size:16px}
+.retry-lnk{font-size:9px;letter-spacing:.25em;text-transform:uppercase;padding:10px 24px;background:none;border:1px solid var(--saffron);color:var(--saffron);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.retry-lnk:hover{background:var(--saffron);color:var(--white)}
+.orn{display:flex;align-items:center;gap:12px;margin-bottom:40px}
+.orn-line{flex:1;height:1px;background:var(--line)}
+.orn-dia{width:5px;height:5px;background:var(--saffron);transform:rotate(45deg);flex-shrink:0}
+.profile-bar{background:var(--ink);color:var(--white);padding:40px}
+.profile-bar-title{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;margin-bottom:28px;color:var(--white)}
+.profile-tags{display:flex;gap:8px;flex-wrap:wrap}
+.profile-tag{font-size:9px;letter-spacing:.2em;text-transform:uppercase;padding:5px 12px;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.5)}
+.profile-tag.hi{border-color:var(--saffron);color:var(--saffron)}
+footer{padding:24px 40px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+footer p{font-size:10px;color:var(--muted);letter-spacing:.1em}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:var(--saffron)}::-webkit-scrollbar-track{background:transparent}
+@media(max-width:640px){.quiz-header,.topic-dots{padding:0 20px}.quiz-body{padding:40px 20px 60px}.options-grid{grid-template-columns:1fr}.main-header,.tab-nav,.dash-section,.profile-bar,footer{padding-left:20px;padding-right:20px}}
 </style>
 </head>
 <body>
-<div>
-    <label for="textInput">Enter Text:</label>
-    <input type="text" id="textInput">
-    <button onclick="addText()">Add Text</button>
-</div>
-<div>
-    <button onclick="clearCanvas()">Clear Canvas</button>
-    <button onclick="exportToJson()">Export JSON</button>
-    <input type="file" id="fileInput" accept=".json" onchange="importFromJson()">
-</div>
-<canvas id="canvas" width="800" height="600"></canvas>
+
+<!-- WELCOME -->
+<section class="screen active" id="screen-welcome">
+  <div class="welcome-bg-glyph">V</div>
+  <div class="welcome-inner">
+    <div class="welcome-eyebrow">Daily Enrichment</div>
+    <h1 class="welcome-title">Vidhan<br>Is <em>Enriched</em></h1>
+    <span class="welcome-yes">YES</span>
+    <p class="welcome-desc">Eight domains. Twenty-five questions each. A taste profile built precisely around you — refreshed every midnight with recommendations that matter.</p>
+    <button class="begin-btn" onclick="startQuiz()">Begin the Questionnaire <span style="font-size:16px;line-height:1">→</span></button>
+    <div class="welcome-topics">
+      <span class="topic-pill">History</span>
+      <span class="topic-pill">Music</span>
+      <span class="topic-pill">Movies</span>
+      <span class="topic-pill">Books</span>
+      <span class="topic-pill">Indian Politics</span>
+      <span class="topic-pill">World Politics</span>
+      <span class="topic-pill">Religion</span>
+      <span class="topic-pill">Philosophy</span>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section class="screen" id="screen-quiz">
+  <div class="quiz-header">
+    <div class="quiz-header-inner">
+      <div class="quiz-logo">VIDHAN IS <span>ENRICHED</span>, yes</div>
+      <div class="quiz-topic-label" id="qTopicLabel">History</div>
+      <div class="quiz-counter" id="qCounter">1 / 25</div>
+    </div>
+    <div class="progress-strip"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  </div>
+  <div class="topic-dots" id="topicDots"></div>
+  <div class="quiz-body" id="quizBody"></div>
+</section>
+
+<!-- TOPIC TRANSITION -->
+<section class="screen" id="screen-transition">
+  <div class="transition-inner">
+    <div class="transition-check">✓</div>
+    <h2 class="transition-title" id="transTitle">History done.</h2>
+    <p class="transition-sub" id="transSub">Your historical taste is mapped. Up next: Music.</p>
+    <button class="next-topic-btn" id="transBtn" onclick="continueToNextTopic()">Continue →</button>
+  </div>
+</section>
+
+<!-- GENERATING -->
+<section class="screen" id="screen-generating">
+  <div class="gen-inner">
+    <div class="gen-mandala"></div>
+    <h2 class="gen-title">Curating your world.</h2>
+    <p class="gen-sub">Analysing your taste across eight domains and selecting today's finest recommendations — just for Vidhan.</p>
+    <div class="gen-status" id="genStatus">Mapping your taste profile…</div>
+    <div class="gen-dots" id="genDots"></div>
+  </div>
+</section>
+
+<!-- DASHBOARD -->
+<section class="screen" id="screen-main">
+  <header class="main-header">
+    <div class="main-logo">VIDHAN IS <span>ENRICHED</span>, yes</div>
+    <div class="header-right">
+      <div class="countdown-badge"><span>Refreshes in</span><span class="countdown-time" id="countdown">—</span></div>
+      <button class="retake-btn" onclick="retakeQuiz()">Retake Quiz</button>
+    </div>
+  </header>
+  <nav class="tab-nav" id="tabNav"></nav>
+  <div id="tabSections"></div>
+  <div class="profile-bar" id="profileBar"></div>
+  <footer>
+    <p>VIDHAN IS ENRICHED, yes — midnight refresh</p>
+    <p id="footerDate"></p>
+  </footer>
+</section>
 
 <script>
-    let dialogue = [];
-    let canvas = document.getElementById('canvas');
-    let ctx = canvas.getContext('2d');
-    let selectedTextIndex = -1;
-    let isDragging = false;
-    let offsetX, offsetY;
+// ═══════════════════════════════════════════════
+// TOPICS DATA
+// ═══════════════════════════════════════════════
+const TOPICS = [
+{
+  id:'history', name:'History', color:'#8B1A1A',
+  desc:'Let us understand which corners of the past fascinate you most.',
+  qs:[
+    {q:'Which broad historical era excites you most?',t:'s',o:['Ancient Civilisations (pre-500 CE)','Medieval & Islamic Golden Age','Early Modern (1400–1700)','Age of Revolutions (1700–1900)','Modern & Contemporary (1900–present)']},
+    {q:'When you think of "great history", which region comes first?',t:'s',o:['South Asia (India, Pakistan, Sri Lanka)','East Asia (China, Japan, Korea)','Middle East & Persia','Europe (Ancient to Modern)','Americas & Africa']},
+    {q:'What draws you to history most powerfully?',t:'s',o:['Political power & empires','Intellectual & cultural movements','Economic systems & trade','Military campaigns & warfare','Social history & everyday life']},
+    {q:'Pick the empire you find most fascinating:',t:'s',o:['Mughal Empire','Roman Empire','Ottoman Empire','British Empire','Mongol Empire']},
+    {q:'Which historical figure compels you most?',t:'s',o:['Ashoka the Great','Napoleon Bonaparte','Queen Elizabeth I','Genghis Khan','Abraham Lincoln']},
+    {q:'Your preferred format for consuming history?',t:'s',o:['Narrative non-fiction books','Academic papers & essays','Documentaries & films','Podcasts & audio','Primary sources & diaries']},
+    {q:'Which historical tension interests you most?',t:'s',o:['Religion vs. State','East vs. West','Coloniser vs. Colonised','Class struggle & revolution','Tradition vs. Modernity']},
+    {q:'Do you prefer history focused on:',t:'s',o:['Great individuals & leaders','Structural forces (economics, geography)','Ideas & intellectual history','Anonymous people & social movements','All equally']},
+    {q:'Which Indian historical period do you find richest?',t:'s',o:['Vedic & Early India','Maurya & Gupta empires','Medieval sultanates & Vijayanagara','Mughal era','Colonial & Independence period']},
+    {q:'Select all sub-fields you enjoy reading about:',t:'m',o:['Art history','Economic history','Military history','History of science','Diplomatic history','Cultural & religious history']},
+    {q:'Which revolution grips you most?',t:'s',o:['French Revolution','American Revolution','Russian Revolution','Indian Independence','Chinese Revolution']},
+    {q:'Preferred depth of historical writing?',t:'s',o:['Long sweeping narratives (Harari-style)','Deep single-period dives','Micro-histories (one event, all angles)','Comparative histories across cultures','Quick essays & long reads']},
+    {q:'Which "collapse" story fascinates you most?',t:'s',o:['Fall of Rome','Partition of India','Collapse of USSR','Fall of Ottoman Empire','End of the Ming Dynasty']},
+    {q:'How do you feel about counterfactual history (what if…)?',t:'s',o:['Love it — speculation is illuminating','Enjoy it occasionally','Prefer sticking strictly to facts','Indifferent']},
+    {q:'Which colonial history interests you most?',t:'s',o:['British colonialism in India','European colonisation of Africa','Spanish colonisation of the Americas','French Indochina','Japanese imperialism in Asia']},
+    {q:'Select subjects that draw you in:',t:'m',o:['Ancient trade routes (Silk Road)','Women in history','History of medicine & plague','Naval history','History of religion','Secret societies & intelligence']},
+    {q:'Which 20th-century event do you think about most?',t:'s',o:['World War II','Cold War','Independence of India','The Holocaust','Partition of Palestine']},
+    {q:'How important are primary sources to you?',t:'s',o:['Very — I love diaries, letters, original texts','Somewhat — I like them quoted in books','Not much — I prefer synthesis','I had not thought about it']},
+    {q:'Which historian\'s approach do you admire?',t:'s',o:['Ramachandra Guha (Indian political history)','Eric Hobsbawm (Marxist European history)','Barbara Tuchman (narrative military history)','Yuval Noah Harari (big-picture macro history)','William Dalrymple (South Asian cultural history)']},
+    {q:'Which aspect of the Mughal Empire interests you most?',t:'s',o:['Court culture, art & architecture','Administrative & economic systems','Religious syncretism','Military expansion','Decline & Aurangzeb']},
+    {q:'Do you enjoy history that intersects with philosophy?',t:'s',o:['Yes, deeply','Sometimes','Prefer history to stay empirical','Not sure']},
+    {q:'Which ancient civilisation do you find most underrated?',t:'s',o:['Indus Valley Civilisation','Carthage','Achaemenid Persia','Mali Empire','Khmer Empire']},
+    {q:'How often do you consume history content?',t:'s',o:['Daily','Several times a week','Weekly','When something catches my eye']},
+    {q:'Which Cold War theatre interests you most?',t:'s',o:['Korea & Vietnam','Cuba & Latin America','Africa (proxy wars)','Afghanistan','Space Race & nuclear arms']},
+    {q:'What would you most like to discover through history recommendations?',t:'s',o:['Something completely new to me','A deeper dive into a period I already love','A different perspective on familiar events','A connection between history and the present day']}
+  ]
+},
+{
+  id:'music', name:'Music', color:'#E8520A',
+  desc:'Map your sonic world — genres, moods, eras, and everything in between.',
+  qs:[
+    {q:'Which broad musical world is home for you?',t:'s',o:['Indian classical (Hindustani or Carnatic)','Western classical & opera','Jazz & blues','Rock & its sub-genres','Electronic & ambient']},
+    {q:'How do you most often engage with music?',t:'s',o:['Deep focused listening (headphones, no distraction)','Background while working or reading','Live concerts & performances','While commuting','Dancing & social settings']},
+    {q:'Which Indian musical tradition draws you more?',t:'s',o:['Hindustani classical (North)','Carnatic classical (South)','Sufi & qawwali','Folk traditions (Baul, Rabindra Sangeet)','Bollywood & film music']},
+    {q:'Your preferred jazz era:',t:'s',o:['Bebop & hard bop (1940s–50s)','Cool jazz & modal (Miles Davis era)','Free jazz (Coltrane, Ornette Coleman)','Fusion (70s)','Contemporary jazz']},
+    {q:'Which decade of rock speaks to you most?',t:'s',o:['1960s (Beatles, Hendrix, Cream)','1970s (Zeppelin, Floyd, Sabbath)','1980s (post-punk, new wave)','1990s (grunge, Britpop, alternative)','2000s and beyond']},
+    {q:'Select all genres you genuinely enjoy:',t:'m',o:['Ambient & drone','Folk & acoustic','World music (non-Western)','Hip-hop & rap','Soul & R&B','Experimental & avant-garde']},
+    {q:'When you listen to Indian classical music, what moves you most?',t:'s',o:['The raga system and its emotional colours','Improvisation and jugalbandis','Particular maestros (Bhimsen Joshi, Ravi Shankar…)','The meditative quality','I am still exploring Indian classical']},
+    {q:'Which Western classical period do you prefer?',t:'s',o:['Baroque (Bach, Handel, Vivaldi)','Classical era (Mozart, Haydn)','Romantic (Beethoven, Brahms, Chopin)','Late Romantic & Impressionist (Wagner, Debussy)','Modern & contemporary (Shostakovich, Arvo Pärt)']},
+    {q:'How important are lyrics vs. pure music to you?',t:'s',o:['Lyrics matter deeply — I analyse them','I notice lyrics but music carries me','Instrumentals are often preferable','Depends entirely on the piece']},
+    {q:'Select the moods music most often serves for you:',t:'m',o:['Contemplation & solitude','Energy & focus','Melancholy & catharsis','Joy & celebration','Spiritual or meditative','Creative work']},
+    {q:'Which artist most represents your musical ideal?',t:'s',o:['Pandit Ravi Shankar','Miles Davis','Bob Dylan','Pink Floyd','Johann Sebastian Bach']},
+    {q:'How adventurous are you with new music?',t:'s',o:['Very — I actively seek unfamiliar sounds','Moderately — I explore within known genres','Cautious — I return to what I already love','I discover serendipitously']},
+    {q:'Sufi and devotional music:',t:'s',o:['Central to my listening life','Something I deeply appreciate','I enjoy occasionally','Largely unexplored for me']},
+    {q:'Which electronic music world resonates?',t:'s',o:['Minimal & ambient (Eno, Boards of Canada)','Techno & house','IDM (Aphex Twin, Autechre)','Krautrock & kosmische (Can, Neu!)','I do not listen to electronic music']},
+    {q:'Do you enjoy music that is political or protest-oriented?',t:'s',o:['Strongly — it adds meaning','I appreciate it when done well','I prefer music to stay apolitical','No strong feeling']},
+    {q:'Your relationship with film music & score?',t:'s',o:['I love great film scores as standalone music','I enjoy them attached to films','I follow specific composers (Morricone, AR Rahman…)','It is secondary for me']},
+    {q:'Which folk tradition interests you?',t:'s',o:['Indian folk (Rajasthani, Baul, Bhojpuri)','Irish & Celtic folk','American roots (Appalachian, blues)','African or Latin folk traditions','I enjoy multiple equally']},
+    {q:'How do you feel about technical virtuosity in music?',t:'s',o:['Essential — I love musical density','Appreciated but not required','Simplicity and emotion matter more','Depends on genre']},
+    {q:'Select musicians you would explore further:',t:'m',o:['Bismillah Khan (shehnai)','John Coltrane (saxophone)','Nusrat Fateh Ali Khan (qawwali)','Joni Mitchell (folk)','György Ligeti (contemporary classical)','Fela Kuti (Afrobeat)']},
+    {q:'Which era of Bollywood music do you most enjoy?',t:'s',o:['Golden Age (1950s–60s, Lata/Rafi era)','70s–80s (R.D. Burman)','90s (Kumar Sanu, Udit Narayan era)','2000s indie-Bollywood crossover','I am not drawn to Bollywood music']},
+    {q:'How much does music history and context enrich your experience?',t:'s',o:['A lot — I love the story behind the music','Somewhat — it adds depth','I prefer to listen without context','I like learning after listening']},
+    {q:'Which genre do you wish you knew better?',t:'s',o:['Carnatic classical','Free jazz','Contemporary classical','West African music','I feel well-explored already']},
+    {q:'Which instrument\'s voice do you find most beautiful?',t:'s',o:['Sarod or sitar','Piano','Violin or cello','Trumpet or saxophone','Guitar (acoustic or electric)']},
+    {q:'Do you engage with music criticism and writing?',t:'s',o:['Yes, regularly — it deepens listening','Sometimes','Rarely','No, I prefer pure listening']},
+    {q:'What would you most like from music recommendations?',t:'s',o:['Something I have never heard before','A deep dive into a genre I love','A great album to revisit','An artist connecting Indian & world music']}
+  ]
+},
+{
+  id:'movies', name:'Movies', color:'#1B3A5C',
+  desc:'Tell us about your cinematic sensibility — directors, eras, what moves you on screen.',
+  qs:[
+    {q:'Which cinematic tradition is closest to your heart?',t:'s',o:['Indian cinema (Hindi, regional, art house)','Hollywood (classic & contemporary)','European cinema (French, Italian, German)','East Asian cinema (Japan, Korea, China)','World cinema — I go everywhere']},
+    {q:'Your preferred genre:',t:'s',o:['Drama & character studies','Documentary','Thriller & noir','Science fiction & speculative','Comedy & satire']},
+    {q:'Which Indian filmmaker do you most admire?',t:'s',o:['Satyajit Ray','Ritwik Ghatak','Mani Ratnam','Anurag Kashyap','Shyam Benegal']},
+    {q:'Which era of cinema speaks to you most?',t:'s',o:['Silent era & early talkies (1920s–40s)','Golden Age Hollywood (1950s–60s)','New Wave movements (1960s–70s)','New Hollywood & world cinema (1970s–80s)','Contemporary (1990s–present)']},
+    {q:'Pick the director whose entire filmography you would watch:',t:'s',o:['Akira Kurosawa','Ingmar Bergman','Stanley Kubrick','Martin Scorsese','Abbas Kiarostami']},
+    {q:'What draws you to a film above everything else?',t:'s',o:['Story & screenplay','Visual style & cinematography','Performance & character','Ideas & themes','Emotional impact']},
+    {q:'Select genres you actively seek out:',t:'m',o:['Political cinema','Horror & psychological thriller','Romantic drama','Animation','Historical epics','Experimental & avant-garde']},
+    {q:'How do you feel about very slow, contemplative cinema?',t:'s',o:['Love it — patience is rewarded','Enjoy it when the visuals reward you','Prefer a certain momentum','Generally prefer faster-paced films']},
+    {q:'Which documentary style appeals most?',t:'s',o:['Observational & fly-on-the-wall','Essay film & personal documentary','Historical reconstruction','Activist & political documentary','I rarely watch documentaries']},
+    {q:'Korean cinema:',t:'s',o:['I follow it closely (Bong Joon-ho, Park Chan-wook…)','I have seen some and want more','Just Parasite, honestly','Not yet explored']},
+    {q:'How important is a film\'s cultural & political context to you?',t:'s',o:['Essential — it enriches every frame','Important but not always necessary','Helpful when available','I prefer films to speak on their own']},
+    {q:'Which French New Wave film or director do you know?',t:'s',o:['Godard, Truffaut — I am a devotee','Familiar with a few films','Just the names','I have not explored it']},
+    {q:'Do you seek out films from the Global South (Africa, Middle East, Latin America)?',t:'s',o:['Actively — it is a priority','When recommended','Occasionally','Not often']},
+    {q:'Your relationship with Bollywood:',t:'s',o:['I love classic Bollywood (1950s–80s)','I follow contemporary Bollywood','I prefer parallel/art cinema','Bollywood is mostly background noise for me']},
+    {q:'How do you feel about black-and-white films?',t:'s',o:['I love them — monochrome can be transcendent','Fine when the film warrants it','A mild barrier','I generally prefer colour']},
+    {q:'Select filmmakers you want to explore more:',t:'m',o:['Andrei Tarkovsky','Wong Kar-wai','Pedro Almodóvar','Ousmane Sembène','Věra Chytilová','Terrence Malick']},
+    {q:'Which aspect of filmmaking fascinates you most beyond story?',t:'s',o:['Cinematography (Vilmos Zsigmond, Roger Deakins…)','Score & sound design','Editing & structure','Production design & art direction','Acting craft']},
+    {q:'How do you feel about very long films (3 hours+)?',t:'s',o:['Embrace them — length can be a gift','Fine if the film earns it','Usually too much','I prefer concise storytelling']},
+    {q:'Your stance on remakes and adaptations:',t:'s',o:['Fascinating to compare with originals','Fine when done well','Generally skeptical','Usually avoid them']},
+    {q:'Which Indian regional cinema would you most like to explore?',t:'s',o:['Malayalam (a golden era right now)','Tamil (classic & new wave)','Bengali (Ray, Ghatak, Ghosh)','Marathi art cinema','I already explore regional cinema broadly']},
+    {q:'Do you read film criticism and theory?',t:'s',o:['Regularly — Cahiers du Cinéma, Sight & Sound…','Sometimes, when a film moves me','Rarely','No, I prefer my own unmediated reaction']},
+    {q:'Subtitles:',t:'s',o:['Completely fine — language is no barrier','Fine but I notice the effort','Slight preference for my own language','A real barrier, honestly']},
+    {q:'Which film-related book or resource interests you most?',t:'s',o:['Director interviews & memoirs','Film theory & semiotics','Historical surveys of world cinema','Making-of accounts & production histories','I do not read much about film']},
+    {q:'How do you discover new films?',t:'s',o:['Curated lists & retrospectives','Critical recommendation (reviews, essays)','Friends & personal networks','Streaming algorithm','Festival programmes & awards']},
+    {q:'What would you most like from today\'s film recommendations?',t:'s',o:['A film I have never heard of','A classic I have always meant to watch','Something from a tradition I know little about','A film that connects to current events or ideas']}
+  ]
+},
+{
+  id:'books', name:'Books', color:'#B8892A',
+  desc:'Uncover your literary world — subjects, styles, authors, and how you read.',
+  qs:[
+    {q:'Which broad category do you read most?',t:'s',o:['Non-fiction (history, biography, essays)','Literary fiction','Philosophy & ideas','Science & nature writing','Politics & current affairs']},
+    {q:'Your preferred non-fiction style:',t:'s',o:['Narrative (reads like a story)','Analytical & argumentative','Essay collections','Biography & memoir','Data-driven & investigative']},
+    {q:'Which Indian author do you most admire?',t:'s',o:['Rabindranath Tagore','R.K. Narayan','Amitav Ghosh','Arundhati Roy','Vikram Seth']},
+    {q:'Which global literary tradition draws you in?',t:'s',o:['Latin American (Marquez, Borges, Bolano)','European (Kafka, Camus, Dostoevsky)','South Asian (Rushdie, Ghosh, Manto)','African (Achebe, Ngugi, Adichie)','East Asian (Murakami, Mo Yan, Mishima)']},
+    {q:'How do you feel about long, dense books?',t:'s',o:['I love them — length equals depth','Fine when the book earns it','Prefer under 300 pages','I read short form primarily']},
+    {q:'Select subjects you actively read about:',t:'m',o:['Political philosophy','Economic history','Ecology & climate','Neuroscience & psychology','Art & aesthetics','Anthropology & sociology']},
+    {q:'Your relationship with poetry:',t:'s',o:['Central to my reading life','I read it occasionally','I appreciate but rarely read it','Poetry is largely unexplored for me']},
+    {q:'Which era of Indian writing in English do you favour?',t:'s',o:['Colonial & early independence (Narayan, Anand)','Post-independence boom (1980s–90s, Rushdie era)','Contemporary (2000s–present)','I prefer Indian-language literature in translation']},
+    {q:'How do you feel about experimental or formally challenging fiction?',t:'s',o:['I seek it out — difficulty is interesting','I enjoy it sometimes','I prefer accessible narratives','I generally avoid it']},
+    {q:'Which type of non-fiction biography interests you most?',t:'s',o:['Political & historical figures','Artists, musicians & writers','Scientists & thinkers','Underrepresented or marginalised figures','I rarely read biography']},
+    {q:'Select thinkers whose books you would prioritise:',t:'m',o:['Hannah Arendt','B.R. Ambedkar','Albert Camus','Simone de Beauvoir','Frantz Fanon','Michel Foucault']},
+    {q:'How important is literary style and prose quality to you?',t:'s',o:['Paramount — I read for sentences','Very important','I notice it but content comes first','Style is largely irrelevant to me']},
+    {q:'Do you read books about books — criticism, theory, reviews?',t:'s',o:['Yes, regularly','Sometimes','Rarely','No']},
+    {q:'Which subject area do you feel most underread in?',t:'s',o:['Indian-language literatures (Urdu, Tamil, Marathi…)','African literature','Economics & political economy','Hard science & nature writing','I feel broadly read']},
+    {q:'Your preferred reading pace:',t:'s',o:['Slow and annotating','Moderate and attentive','Fast and immersive','Depends entirely on the book']},
+    {q:'Which Partition-era writer or literature interests you?',t:'s',o:['Saadat Hasan Manto','Ismat Chughtai','Bhisham Sahni','Intizar Husain','I have not explored Partition literature deeply']},
+    {q:'How do you discover new books?',t:'s',o:['Reviews & literary journalism','Personal recommendations','Browsing bookshops','Curated lists & prizes','Author rabbit-holes (one book leads to another)']},
+    {q:'Your relationship with essays and long-form journalism:',t:'s',o:['Essential reading — I follow magazines closely','I read them regularly','Occasionally, when a topic grabs me','Rarely']},
+    {q:'Which prize-winning book tradition interests you most?',t:'s',o:['Booker Prize winners','Nobel Prize in Literature','JCB Prize (Indian fiction)','Pulitzer Prize (American non-fiction)','I rarely follow prizes']},
+    {q:'Do you re-read books?',t:'s',o:['Often — re-reading is essential','Occasionally, when a book merits it','Rarely','Never — too many unread books']},
+    {q:'Select authors you want to read more of:',t:'m',o:['Ursula K. Le Guin','W.G. Sebald','Toni Morrison','V.S. Naipaul','Jorge Luis Borges','Mahasweta Devi']},
+    {q:'How do you feel about genre fiction (sci-fi, fantasy, crime)?',t:'s',o:['I read it seriously and enthusiastically','I enjoy it selectively','Occasionally as a palate cleanser','I largely stick to literary fiction & non-fiction']},
+    {q:'Which format do you mostly read in?',t:'s',o:['Physical books only','E-reader (Kindle, Kobo)','Mix of both','Audiobooks primarily']},
+    {q:'How many books do you typically read per month?',t:'s',o:['5 or more','3–4','1–2','Less than 1, but I read excerpts & essays']},
+    {q:'What would you most like from today\'s book recommendations?',t:'s',o:['A book I have never encountered','Something to deeply challenge me','A book that connects to Indian thought or history','A quick, brilliant read for this week']}
+  ]
+},
+{
+  id:'india', name:'Indian Politics', color:'#2D5A27',
+  desc:'Map your engagement with Indian public life — from constitutional theory to street-level politics.',
+  qs:[
+    {q:'How closely do you follow Indian politics?',t:'s',o:['Very closely — it is a daily preoccupation','Regularly, with depth','Casually, when major events arise','I follow specific areas only']},
+    {q:'Which area of Indian politics engages you most?',t:'s',o:['Constitutional & legal questions','Electoral politics & party dynamics','Economic policy & development','Social movements & civil rights','Foreign policy & geopolitics']},
+    {q:'Your primary sources for Indian political news:',t:'m',o:['The Wire / Scroll / NewsLaundry','The Hindu / Indian Express','Economic & Political Weekly','Caravan Magazine','YouTube creators & podcasts','TV debates']},
+    {q:'Which constitutional question do you find most pressing?',t:'s',o:['Federalism & Centre-State relations','Judicial independence & appointments','Fundamental rights & their erosion or expansion','Parliamentary democracy & its health','Secularism & minority rights']},
+    {q:'Which political figure from independent India do you think most about?',t:'s',o:['B.R. Ambedkar','Jawaharlal Nehru','Indira Gandhi','Atal Bihari Vajpayee','Jayaprakash Narayan']},
+    {q:'How do you approach the debate around Hindutva?',t:'s',o:['I study it analytically as a political ideology','I engage with it through a rights & constitutional lens','I follow it primarily through social & economic effects','I find it primarily a cultural question','I prefer to study political Islam, caste politics & other ideologies alongside it']},
+    {q:'Which Indian economic debate matters most to you?',t:'s',o:['Inequality & wealth concentration','Agricultural policy & farmer welfare','Privatisation & the role of the state','Urban planning & infrastructure','Climate & industrial policy']},
+    {q:'How do you view the role of caste in contemporary Indian politics?',t:'s',o:['Central — it structures everything','Very important but alongside class and religion','Important but declining over time','Often over-emphasised relative to economic factors','I want to understand it better']},
+    {q:'Which regional political story do you follow most closely?',t:'s',o:['Tamil Nadu (Dravidian politics)','UP & Bihar (Hindi heartland, OBC & caste politics)','Kerala (left governance & welfare)','Bengal (TMC, CPM, BJP dynamics)','Maharashtra (coalition politics & Maratha identity)']},
+    {q:'Select Indian political thinkers you want to engage with more:',t:'m',o:['B.R. Ambedkar','Ram Manohar Lohia','Jayaprakash Narayan','M.N. Roy','Deendayal Upadhyaya','E.V. Ramasamy (Periyar)']},
+    {q:'How do you feel about the Emergency (1975–77) as a political episode?',t:'s',o:['A defining rupture that explains much about Indian democracy today','An important event I want to understand better','A cautionary tale about executive overreach','Somewhat over-referenced in contemporary debate']},
+    {q:'Which electoral reform do you care most about?',t:'s',o:['Electoral bonds & campaign finance','FPTP vs. proportional representation','Frequency of elections (One Nation One Election debate)','EVM reliability & electoral integrity','Women\'s reservation in legislatures']},
+    {q:'Your view of the Indian media landscape:',t:'s',o:['Deeply concerned about corporate capture & bias','Follow specific trustworthy outlets carefully','Try to read across the spectrum','Largely disenchanted with mainstream media']},
+    {q:'Which Supreme Court of India moment do you find most significant?',t:'s',o:['Kesavananda Bharati (Basic Structure doctrine)','ADM Jabalpur (Emergency & rights)','Decriminalisation of Article 377','Ram Mandir judgment','Recent NRC/CAA cases']},
+    {q:'How much do you engage with Indian political history (pre-1947)?',t:'s',o:['Deeply — it is inseparable from the present','Regularly','Occasionally','Mostly I focus on post-independence']},
+    {q:'Select topics in Indian foreign policy you follow:',t:'m',o:['India-China relations','India-Pakistan','India-US (Quad, defence ties)','India-Russia (S-400, oil imports)','India & the Global South (BRICS, G20)']},
+    {q:'Which Indian political newspaper or magazine do you trust most?',t:'s',o:['The Hindu','Indian Express','Economic & Political Weekly','The Wire','Frontline']},
+    {q:'How do you view the Nehru-Gandhi dynasty\'s role in Indian democracy?',t:'s',o:['Complicated — great contributions and real damage','Primarily positive in nation-building','A serious structural problem for the Congress & democracy','Too dominant in historical memory at the cost of other stories']},
+    {q:'Which grassroots or civil society movement interests you most?',t:'s',o:['Narmada Bachao Andolan & environmental movements','Farmers\' protest (2020–21)','Anti-CAA movement','Dalit rights & Bhim Army','RTI & anti-corruption movements']},
+    {q:'Your interest in comparative federalism (India vs. other large democracies):',t:'s',o:['High — I actively compare India to the US, EU, Germany…','Moderate — useful context','Low — I prefer to focus on India alone','I would like to develop this more']},
+    {q:'How do you engage with data in Indian politics?',t:'s',o:['I follow Lok Dhaba, TCPD, and election data closely','I use it when it illuminates an argument','I prefer qualitative & historical analysis','I find it largely inaccessible or manipulated']},
+    {q:'Which Indian political book would you most want recommended to you?',t:'s',o:['Constitutional history & law','Electoral politics & party history','Political economy & development','Ideology & political thought','Memoir or biography of a political figure']},
+    {q:'Do you follow state assembly elections as closely as general elections?',t:'s',o:['Yes — they are equally important','I follow the big ones closely','Only when they seem nationally significant','Mostly no']},
+    {q:'How concerned are you about the state of Indian democracy?',t:'s',o:['Deeply concerned — I see real democratic backsliding','Concerned but cautiously optimistic about institutions','Mixed — there are problems but resilience too','I think concern is overstated']},
+    {q:'What would you most like from Indian politics recommendations today?',t:'s',o:['A deep analytical piece I might have missed','A historical essay with contemporary resonance','A legal or constitutional analysis','A perspective I might disagree with but should read']}
+  ]
+},
+{
+  id:'world', name:'World Politics', color:'#3D2B6B',
+  desc:'Your lens on geopolitics, international relations, and global power.',
+  qs:[
+    {q:'Which global region do you follow most closely?',t:'s',o:['South & Southeast Asia','Middle East & North Africa','Europe & Russia','Americas (North & Latin)','Sub-Saharan Africa']},
+    {q:'What draws you to world politics most?',t:'s',o:['Great power competition (US, China, Russia)','Regional conflicts & humanitarian crises','International institutions & multilateralism','Climate diplomacy & global governance','Ideology & political movements worldwide']},
+    {q:'Which geopolitical thinker or analyst do you follow?',t:'s',o:['Noam Chomsky (critical of US power)','Fareed Zakaria (liberal internationalist)','John Mearsheimer (realist)','Ha-Joon Chang (global political economy)','Anne Applebaum (democracy & authoritarianism)']},
+    {q:'Your view of the current world order:',t:'s',o:['US hegemony is declining — a multipolar world is emerging','The liberal international order is worth defending','Great power competition is the defining feature','The nation-state system itself is the problem','I find it genuinely uncertain and contested']},
+    {q:'Which conflict or crisis do you follow most closely?',t:'s',o:['Russia-Ukraine war','Israel-Palestine','China-Taiwan','Sudan & Sahel instability','Myanmar & Southeast Asian authoritarianism']},
+    {q:'Select international institutions you engage with most:',t:'m',o:['United Nations & its bodies','International Court of Justice','WTO & global trade architecture','IMF & World Bank','BRICS & alternative institutions','NATO & security alliances']},
+    {q:'How do you view China\'s global rise?',t:'s',o:['A profound structural shift requiring careful analysis','Primarily a threat to be countered','A legitimate development story','Overhyped — internal fragilities are underreported','I hold genuinely complex views I am still working through']},
+    {q:'Which publication do you read for international affairs?',t:'s',o:['Foreign Affairs','The Economist','Al Jazeera English','The Intercept','Jacobin or Monthly Review']},
+    {q:'How important is postcolonial thinking to your understanding of world politics?',t:'s',o:['Essential — it reframes everything','Very important, especially for Global South analysis','Relevant but one lens among several','I want to engage with it more','Not central to how I think']},
+    {q:'Which Cold War moment do you find most instructive today?',t:'s',o:['Cuban Missile Crisis (nuclear brinkmanship)','Non-Aligned Movement (Global South resistance)','Fall of Berlin Wall (democratic transitions)','Angola & proxy wars (resource & ideology)','Afghan-Soviet war (blowback & intervention)']},
+    {q:'How do you think about US foreign policy?',t:'s',o:['Primarily imperialist and self-serving','An imperfect but necessary stabilising force','Driven by elite interests that sometimes align with global goods','Highly variable — depends on administration and issue']},
+    {q:'Your interest in nuclear weapons & arms control:',t:'s',o:['High — NPT, disarmament, deterrence theory fascinate me','I follow the major developments','Moderate — I care about the big risks','Low — I focus on other dimensions of global politics']},
+    {q:'Select regions you want to know more about:',t:'m',o:['West Africa & Sahel','Central Asia (Kazakhstan, Uzbekistan…)','Horn of Africa','Balkans & Eastern Europe','Pacific Islands & climate geopolitics','Andean Latin America']},
+    {q:'How do you view international human rights institutions?',t:'s',o:['Vital — imperfect but irreplaceable','Important when they hold powerful states accountable','Selectively applied and therefore compromised','Largely toothless but symbolically useful']},
+    {q:'Which global economic question concerns you most?',t:'s',o:['Debt crisis in the Global South','US-China economic decoupling','Global inequality & tax havens','Supply chain fragility & deglobalisation','Climate finance & just transition']},
+    {q:'Your view of India\'s foreign policy under the current government:',t:'s',o:['Strategic autonomy well-executed','Too close to certain powers','Insufficiently principled on democracy & rights globally','Pragmatic and largely correct','I want to understand it better']},
+    {q:'How do you engage with intelligence & spy history in global politics?',t:'s',o:['Deeply — I read about the CIA, KGB, RAW closely','Interested when it connects to broader events','Occasionally as a narrative interest','Not a primary interest']},
+    {q:'Which global ideology or movement do you want to understand better?',t:'s',o:['Contemporary authoritarianism & democratic backsliding','Islamist political movements','Left populism in Latin America','Nationalist & far-right movements in Europe','Anarchism & decentralised political thought']},
+    {q:'How important is climate change as a political issue to you?',t:'s',o:['The defining issue of this era — it overlaps everything','Very important, especially loss & damage justice','Important but I follow other issues more closely','I want to engage more seriously with it']},
+    {q:'Select journalists or analysts you would read more of:',t:'m',o:['Robert Fisk (Middle East)','Vijay Prashad (Global South)','Timothy Snyder (Eastern Europe & tyranny)','Naomi Klein (capitalism & climate)','Isabel Hilton (China & global affairs)']},
+    {q:'How do you think about sanctions as a foreign policy tool?',t:'s',o:['Largely counterproductive and harmful to civilians','Useful when targeted and multilateral','A necessary tool when force is off the table','Often more about domestic politics than geopolitical effect']},
+    {q:'Your interest in international development & aid:',t:'s',o:['High — effectiveness, conditionality & justice matter to me','Moderate — I follow big debates','I am sceptical of the development industry broadly','Low — I focus on state-to-state politics']},
+    {q:'Which historical international event do you most want to revisit?',t:'s',o:['Bandung Conference (1955) & Non-Alignment','Decolonisation & partition across Asia & Africa','Bretton Woods & the post-war economic order','Helsinki Accords & European détente','NIEO debates (1970s Global South economic justice)']},
+    {q:'How do you consume international news?',t:'s',o:['Long-form essays & magazines primarily','Daily news with deep-dives when warranted','Podcasts & audio (Lawfare, The Bunker, CGSP…)','Academic papers & think-tank reports','I read broadly across all these']},
+    {q:'What would you most like from world politics recommendations today?',t:'s',o:['An analysis of something I am already following closely','An introduction to a region I know little about','A historical piece that illuminates the present','A perspective that challenges my assumptions']}
+  ]
+},
+{
+  id:'religion', name:'Religion', color:'#5A3010',
+  desc:'Explore your engagement with religion — as history, philosophy, lived practice, and cultural force.',
+  qs:[
+    {q:'How do you primarily relate to religion?',t:'s',o:['As a practitioner with personal faith','As a cultural or familial inheritance I reflect on','As an intellectual and historical subject','As a critical observer interested in its social effects','I hold a complex position that shifts']},
+    {q:'Which religious tradition do you engage with most deeply?',t:'s',o:['Hinduism in its many forms','Islam (Sunni, Sufi, Shia traditions)','Buddhism (Theravada, Mahayana, Zen)','Christianity (Catholic, Orthodox, Protestant)','Judaism, Sikhism, or Jainism']},
+    {q:'What aspect of Hinduism interests you most?',t:'s',o:['Vedanta & Upanishadic philosophy','Bhakti traditions & devotional poetry','Tantric traditions & goddess worship','Temple culture & ritual','The political dimensions of Hinduism in India today']},
+    {q:'How deeply do you engage with Sufi Islam?',t:'s',o:['Deeply — I read Rumi, Ibn Arabi, and scholars of Sufism','Appreciatively — I love the music and poetry','With some curiosity I want to develop','It is largely unexplored for me']},
+    {q:'Which Buddhist tradition interests you most?',t:'s',o:['Early Buddhism & Pali Canon (Theravada)','Mahayana philosophy (Nagarjuna, Madhyamaka)','Zen & Japanese Buddhism (koans, Dogen)','Tibetan Buddhism (Vajrayana, tantra)','Engaged Buddhism (Thich Nhat Hanh, Ambedkar Buddhism)']},
+    {q:'Select religious texts or works you want to explore more:',t:'m',o:['Upanishads','Quran with tafsir','Dhammapada & Pali suttas','Bible (as literary & historical text)','Guru Granth Sahib','Avesta (Zoroastrian)']},
+    {q:'How do you think about mysticism across traditions?',t:'s',o:['Fascinated — I trace its common threads','Deeply engaged within one tradition','Curious but approaching carefully','Sceptical — I prefer the institutional and social dimensions']},
+    {q:'Which Indian saint or poet-devotee fascinates you most?',t:'s',o:['Mirabai (Rajput bhakti poet)','Kabir (weaver & mystic)','Tukaram (Maharashtra bhakti)','Akka Mahadevi (Kannada vachana tradition)','Lal Ded (Kashmiri Shaivite poet)']},
+    {q:'How do you engage with the relationship between religion and politics in India?',t:'s',o:['With serious analytical concern','As a student of its historical complexity','From a secular-constitutionalist perspective','From within a faith perspective seeking balance','I find it the most important issue in Indian public life today']},
+    {q:'Select religious scholars or thinkers you would read:',t:'m',o:['Karen Armstrong (comparative religion)','Wendy Doniger (Hinduism)','Tariq Ramadan (Islam & modernity)','Thich Nhat Hanh (engaged Buddhism)','Sarvepalli Radhakrishnan (Indian philosophy)','Romila Thapar (religion in Indian history)']},
+    {q:'Your interest in the history of Islamic civilisation:',t:'s',o:['High — Abbasid, Andalusian, Ottoman culture fascinate me','Moderate — I follow it through Indian history primarily','I want to explore it much more than I have','Relatively low currently']},
+    {q:'How do you approach atheism and secularism as worldviews?',t:'s',o:['I identify with them personally','I respect them as important intellectual positions','I find them reductive of religious experience','I hold them alongside genuine religious curiosity — they coexist for me']},
+    {q:'Which aspect of religious history most interests you?',t:'s',o:['The formation of religious texts & canons','The spread & transformation of religions across cultures','Heresy, schism & internal conflict','Religion\'s relationship with empire and colonialism','Interfaith encounter & dialogue']},
+    {q:'Your interest in Jainism:',t:'s',o:['Deep — I study ahimsa, anekantavada, Jain philosophy','Appreciative — I know key concepts','Curious and wanting to learn more','Not yet explored meaningfully']},
+    {q:'How do you think about prayer and ritual?',t:'s',o:['As personally meaningful practice','As fascinating anthropological and cultural phenomena','As socially functional but not metaphysically significant','As something I approach with genuine openness']},
+    {q:'Which religious conflict or encounter do you want to understand better?',t:'s',o:['Hinduism & Islam in South Asian history','The Crusades & Christian-Muslim encounter','Reformation & religious wars in Europe','Buddhism & Hinduism in Southeast Asia','Sikhism, Islam & the Mughal Empire']},
+    {q:'Do you read scripture directly?',t:'s',o:['Yes, regularly — it is part of my practice or inquiry','I dip in and out','I prefer scholars\' interpretations','Rarely or never']},
+    {q:'How do you engage with new religious movements & cults?',t:'s',o:['With serious sociological and psychological interest','Fascinated as social phenomena','Cautiously curious','With concern about manipulation']},
+    {q:'Which Upanishad or Vedantic text do you find most compelling?',t:'s',o:['Brihadaranyaka Upanishad','Chandogya Upanishad','Mandukya Upanishad','Bhagavad Gita (as Upanishadic in spirit)','I am still finding my way into this literature']},
+    {q:'Your interest in religion and science:',t:'s',o:['I think about it deeply — convergence & conflict both interest me','I follow debates about consciousness, cosmology & religion','I think they occupy separate domains','I am sceptical of reconciliation projects']},
+    {q:'Which tradition of ethical religious thought interests you?',t:'s',o:['Hindu dharma ethics','Islamic ethics (fiqh, maqasid al-shariah)','Buddhist ethics (sila, compassion)','Christian natural law & liberation theology','Jewish ethics (halacha, tikkun olam)']},
+    {q:'Do you engage with bhakti poetry in translation?',t:'s',o:['Yes — I read Mirabai, Kabir, Tukaram regularly','Occasionally when I encounter it','I would like to but have not found a way in','Not particularly']},
+    {q:'How do you think about religious conversion historically?',t:'s',o:['As a complex phenomenon of power, meaning-making & survival','As primarily about cultural assimilation','As spiritually significant','As a site of both violence and liberation depending on context']},
+    {q:'Your interest in Sikhism as religious and political history:',t:'s',o:['High — the Gurus, the Khalsa, Partition fascinates me','I know the basics and want to go deeper','Limited but I am curious','I focus on other traditions']},
+    {q:'What would you most like from religion recommendations today?',t:'s',o:['A deep scholarly work on a tradition I love','Something from a tradition I barely know','A book at the intersection of religion and politics','A text of scripture or devotional poetry']}
+  ]
+},
+{
+  id:'philosophy', name:'Philosophy', color:'#1A3A4A',
+  desc:'Chart your philosophical landscape — traditions, problems, thinkers, and how you think.',
+  qs:[
+    {q:'Which philosophical tradition is most your home?',t:'s',o:['Western analytic philosophy','Continental European philosophy','Indian philosophy (Nyaya, Vedanta, Buddhist logic)','Political philosophy & social theory','Ethics & moral philosophy']},
+    {q:'What draws you to philosophy most?',t:'s',o:['Metaphysics — questions of being, time, reality','Epistemology — how we know what we know','Ethics — how we should live and act','Political philosophy — justice, power, legitimacy','Philosophy of mind — consciousness, experience, selfhood']},
+    {q:'Which Indian philosophical school interests you most?',t:'s',o:['Advaita Vedanta (non-dualism, Shankara)','Nyaya-Vaisheshika (logic & atomism)','Buddhist logic (Dignaga, Dharmakirti)','Carvaka & materialist traditions','Jain epistemology (anekantavada, syadvada)']},
+    {q:'Which Western philosopher do you return to most?',t:'s',o:['Plato & Aristotle','Spinoza, Hume, Kant','Hegel & Marx','Nietzsche & Schopenhauer','Wittgenstein, Heidegger, or Sartre']},
+    {q:'How do you engage with ethics?',t:'s',o:['I am drawn to virtue ethics (Aristotle, Confucian)','Utilitarian & consequentialist frameworks interest me','I think deontologically (Kant, duties & rights)','I approach it through political philosophy (justice, power)','I find ethics fascinating precisely because no framework fully satisfies']},
+    {q:'Select contemporary philosophers you want to read more of:',t:'m',o:['Amartya Sen (capabilities, justice)','Cornel West (race & democracy)','Judith Butler (gender, performativity)','Slavoj Žižek (ideology & Lacan)','Martha Nussbaum (emotions & justice)','Charles Taylor (modernity & authenticity)']},
+    {q:'How do you feel about analytic philosophy (Russell, Frege, Quine)?',t:'s',o:['I appreciate its rigour and precision','I find it too narrow and technical','I engage with it in philosophy of language & mind','I am largely unfamiliar but curious']},
+    {q:'Your interest in existentialism:',t:'s',o:['Deep — Sartre, Camus, Beauvoir, Kierkegaard guide my thinking','Significant — I return to it often','I know the key ideas; I want to go deeper','Limited — I find other traditions more useful']},
+    {q:'Which concept in Indian philosophy do you find most illuminating?',t:'s',o:['Brahman/Atman (the universal and individual self)','Karma & rebirth (moral causality)','Sunyata (emptiness, Buddhist)','Anekantavada (many-sidedness of truth, Jain)','Maya (illusion and the nature of appearance)']},
+    {q:'How do you think about consciousness?',t:'s',o:['The hard problem genuinely baffles me — I follow it closely','I lean towards physicalist / materialist accounts','I find non-Western accounts (Buddhist, Vedantic) compelling','I think philosophy of mind needs radical new frameworks','It is the most interesting open question in philosophy for me']},
+    {q:'Select philosophical works you want to read or reread:',t:'m',o:['Plato\'s Republic','Kant\'s Critique of Pure Reason','Wittgenstein\'s Philosophical Investigations','Nagarjuna\'s Mulamadhyamakakarika','Ambedkar\'s Annihilation of Caste (as philosophy)','Hannah Arendt\'s The Human Condition']},
+    {q:'Your relationship with philosophy of language:',t:'s',o:['Central — Wittgenstein, Saussure, and language fascinate me','Important, especially in understanding meaning and interpretation','I engage with it through literature & criticism','Not a primary interest']},
+    {q:'How do you think about free will?',t:'s',o:['Compatibilism — free will and determinism can coexist','Hard determinism — free will is an illusion','Libertarian free will — we have genuine agency','I find the debate conceptually confused and need to rethink it']},
+    {q:'Which political philosopher do you engage with most?',t:'s',o:['John Rawls (liberal justice)','Karl Marx (historical materialism)','Hannah Arendt (power, violence, totalitarianism)','B.R. Ambedkar (caste, democracy, annihilation)','Michel Foucault (power, discourse, subjectivity)']},
+    {q:'How do you feel about Nietzsche?',t:'s',o:['One of the most important thinkers of the modern era','Profound but dangerous — context matters enormously','Fascinating but I keep a critical distance','Overhyped and misread in popular culture','I want to engage with him more seriously than I have']},
+    {q:'Your interest in philosophy of science:',t:'s',o:['High — Kuhn, Popper, Lakatos and the nature of knowledge','Moderate — I follow debates about realism and explanation','I come to it through history of science','Not a strong area of interest currently']},
+    {q:'Which tradition of feminist philosophy do you engage with?',t:'s',o:['Second-wave (Beauvoir, Wollstonecraft, foundational texts)','Poststructuralist feminism (Butler, Cixous)','Intersectional & postcolonial feminism','Care ethics (Noddings, Gilligan)','I want to explore feminist philosophy more seriously']},
+    {q:'Your interest in aesthetics — philosophy of art, beauty, experience:',t:'s',o:['Deep — Kant\'s Critique of Judgement, Hegel on art, Rasa theory fascinate me','Significant — I think about art through philosophical categories','Moderate — I engage with it through criticism','Limited — I prefer ethics and metaphysics']},
+    {q:'How do you approach the is-ought problem (Hume\'s guillotine)?',t:'s',o:['It is a fundamental problem that shapes how I think about ethics','I think it can be bridged through naturalism or virtue ethics','I find it theoretically interesting but practically manageable','I have not engaged with it deeply yet']},
+    {q:'Select philosophical traditions from outside Europe and India you want to explore:',t:'m',o:['African philosophy (Ubuntu, Akan thought)','Confucian & Daoist philosophy (China)','Japanese philosophy (Kyoto School, Zen philosophy)','Islamic philosophy (Ibn Rushd, Al-Ghazali, Ibn Khaldun)','Indigenous philosophy & epistemology']},
+    {q:'Your relationship with Marxism as a philosophical tradition:',t:'s',o:['I take it seriously as a method and analytical framework','I engage with it critically — important but with major limits','I find Western Marxism (Frankfurt School, Gramsci) more useful than orthodox Marxism','I have largely moved beyond it','I want to understand it better than I currently do']},
+    {q:'How do you think about death and finitude philosophically?',t:'s',o:['Through Heidegger & existentialist accounts of being-toward-death','Through Buddhist accounts of impermanence','Through Epicurean arguments (death is nothing to fear)','Through religious frameworks primarily','It is a question I avoid — perhaps because it matters too much']},
+    {q:'Your interest in philosophy of time:',t:'s',o:['Deep — McTaggart, Heidegger, physics-philosophy interfaces','Moderate — I follow the debates from a distance','I come to it through literature and experience','Not currently a strong interest']},
+    {q:'Which philosophical problem keeps you up at night?',t:'s',o:['The hard problem of consciousness','The basis of moral obligation','What makes a political order legitimate','Whether there is meaning in a materialist universe','The reliability of reason and perception themselves']},
+    {q:'What would you most like from philosophy recommendations today?',t:'s',o:['A difficult primary text I have been meaning to read','A scholarly interpretation that opens a thinker up','A comparison between Indian and Western philosophical approaches','A contemporary essay applying philosophy to an urgent real-world question']}
+  ]
+}
+];
 
-    canvas.addEventListener('mousedown', handleMouseDown);
-    canvas.addEventListener('mousemove', handleMouseMove);
-    canvas.addEventListener('mouseup', handleMouseUp);
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+const SK = 'vie_prefs_v3', CK = 'vie_cache_v3', CDK = 'vie_cdate_v3';
+let answers = {}, topicIdx = 0, qIdx = 0, selected = [], cache = {};
 
-    function addText() {
-        let text = document.getElementById('textInput').value;
-        dialogue.push({ text: text, x: 100, y: dialogue.length * 100 });
-        draw();
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem(SK);
+  if(saved){
+    answers = JSON.parse(saved);
+    const cd = localStorage.getItem(CDK), cr = localStorage.getItem(CK);
+    if(cd === todayStr() && cr){ cache = JSON.parse(cr); showDashboard(); }
+    else showDash_generate();
+  }
+  startCountdown();
+});
+
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo(0,0); }
+
+// ═══════════════════════════════════════════════
+// QUIZ FLOW
+// ═══════════════════════════════════════════════
+function startQuiz(){ topicIdx=0; qIdx=0; answers={}; show('screen-quiz'); renderTopicDots(); renderQuestion(); }
+
+function renderTopicDots(){
+  const c = document.getElementById('topicDots');
+  c.innerHTML = TOPICS.map((t,i)=>`<div class="topic-dot-item"><div class="topic-dot ${i<topicIdx?'done':i===topicIdx?'current':''}"></div><span class="topic-dot-label">${t.name}</span></div>`).join('');
+}
+
+function renderQuestion(){
+  const topic = TOPICS[topicIdx], q = topic.qs[qIdx];
+  const total = topic.qs.length, overall = TOPICS.slice(0,topicIdx).reduce((a,t)=>a+t.qs.length,0)+qIdx+1, grand = TOPICS.reduce((a,t)=>a+t.qs.length,0);
+  document.getElementById('qTopicLabel').textContent = topic.name;
+  document.getElementById('qCounter').textContent = `${qIdx+1} / ${total}`;
+  document.getElementById('progressFill').style.width = (overall/grand*100)+'%';
+  selected = [];
+
+  const introHTML = qIdx===0 ? `<div class="q-section-intro"><div class="q-section-num">DOMAIN ${String(topicIdx+1).padStart(2,'0')} / ${String(TOPICS.length).padStart(2,'0')}</div><div class="q-section-name">${topic.name}</div><div class="q-section-desc">${topic.desc}</div></div>` : '';
+
+  const cols = q.o.length <= 3 || q.t==='m' ? 'single-col' : '';
+  const hint = q.t==='m' ? '<div class="q-hint">Select all that apply</div>' : '';
+  const opts = q.o.map((o,i)=>`<button class="opt-btn" onclick="selectOpt(this,${i},'${q.t}')"><span class="opt-label">${String.fromCharCode(65+i)}</span>${esc(o)}</button>`).join('');
+
+  document.getElementById('quizBody').innerHTML = `${introHTML}<div class="question-wrap"><div class="q-number">Q${qIdx+1}</div><div class="q-text">${esc(q.q)}</div>${hint}<div class="options-grid ${cols}">${opts}</div><button class="next-btn" id="nextBtn" onclick="nextQuestion()" disabled>Next →</button></div>`;
+}
+
+function selectOpt(btn, idx, type){
+  if(type==='s'){
+    document.querySelectorAll('.opt-btn').forEach(b=>b.classList.remove('selected'));
+    btn.classList.add('selected'); selected=[idx];
+  } else {
+    if(btn.classList.contains('multi-selected')){ btn.classList.remove('multi-selected'); selected=selected.filter(i=>i!==idx); }
+    else { btn.classList.add('multi-selected'); selected.push(idx); }
+  }
+  document.getElementById('nextBtn').disabled = selected.length===0;
+}
+
+function nextQuestion(){
+  const topic = TOPICS[topicIdx], q = topic.qs[qIdx];
+  if(!answers[topic.id]) answers[topic.id]=[];
+  const ans = selected.map(i=>q.o[i]);
+  answers[topic.id].push({q:q.q, a:ans});
+
+  qIdx++;
+  if(qIdx >= topic.qs.length){
+    // topic done
+    if(topicIdx+1 >= TOPICS.length){
+      localStorage.setItem(SK, JSON.stringify(answers));
+      showDash_generate();
+    } else {
+      const next = TOPICS[topicIdx+1];
+      document.getElementById('transTitle').textContent = `${topic.name} mapped.`;
+      document.getElementById('transSub').textContent = `Your ${topic.name.toLowerCase()} taste is profiled. Up next: ${next.name}.`;
+      show('screen-transition');
     }
+  } else {
+    renderQuestion();
+  }
+}
 
-    function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        dialogue.forEach((item, index) => {
-            ctx.fillText(item.text, item.x, item.y);
-            if (index > 0) {
-                ctx.beginPath();
-                ctx.moveTo(dialogue[index - 1].x + ctx.measureText(dialogue[index - 1].text).width, dialogue[index - 1].y);
-                ctx.lineTo(item.x, item.y);
-                ctx.stroke();
-            }
-        });
-    }
+function continueToNextTopic(){
+  topicIdx++; qIdx=0;
+  show('screen-quiz');
+  renderTopicDots();
+  renderQuestion();
+}
 
-    function clearCanvas() {
-        dialogue = [];
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
+// ═══════════════════════════════════════════════
+// GENERATING
+// ═══════════════════════════════════════════════
+async function showDash_generate(){
+  show('screen-generating');
+  const dots = document.getElementById('genDots');
+  dots.innerHTML = TOPICS.map((_,i)=>`<div class="gen-dot" id="gdot${i}"></div>`).join('');
+  const statuses = TOPICS.map(t=>`Curating ${t.name.toLowerCase()}…`);
+  cache={};
+  for(let i=0;i<TOPICS.length;i++){
+    document.getElementById('genStatus').textContent = statuses[i];
+    document.getElementById('gdot'+i).classList.add('active');
+    await fetchRecs(TOPICS[i]);
+  }
+  localStorage.setItem(CK, JSON.stringify(cache));
+  localStorage.setItem(CDK, todayStr());
+  showDashboard();
+}
 
-    function exportToJson() {
-        let json = JSON.stringify(dialogue);
-        let blob = new Blob([json], { type: 'application/json' });
-        let url = URL.createObjectURL(blob);
-        let a = document.createElement('a');
-        a.href = url;
-        a.download = 'dialogue.json';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-    }
+async function fetchRecs(topic){
+  const topicAnswers = answers[topic.id]||[];
+  const summary = topicAnswers.map(a=>`Q: ${a.q}\nA: ${a.a.join(', ')}`).join('\n\n');
+  const prompt = `You are an expert curator in ${topic.name}. Based on these 25 preference answers, give 6 highly personalised recommendations (books, films, albums, articles, documentaries, podcasts, or any relevant format) for today, ${new Date().toDateString()}.
 
-    function importFromJson() {
-        let file = document.getElementById('fileInput').files[0];
-        let reader = new FileReader();
-        reader.onload = function(event) {
-            dialogue = JSON.parse(event.target.result);
-            draw();
-        };
-        reader.readAsText(file);
-    }
+TASTE PROFILE:
+${summary}
 
-    function handleMouseDown(event) {
-        let mouseX = event.clientX - canvas.offsetLeft;
-        let mouseY = event.clientY - canvas.offsetTop;
-        for (let i = 0; i < dialogue.length; i++) {
-            let item = dialogue[i];
-            let textWidth = ctx.measureText(item.text).width;
-            if (mouseX > item.x && mouseX < item.x + textWidth && mouseY > item.y - 15 && mouseY < item.y + 5) {
-                selectedTextIndex = i;
-                offsetX = mouseX - item.x;
-                offsetY = mouseY - item.y;
-                isDragging = true;
-                break;
-            }
-        }
-    }
+Return ONLY a valid JSON array, no markdown, no preamble:
+[{"title":"...","creator":"...","type":"...","why":"One elegant sentence on why this fits Vidhan's exact taste.","tag":"..."}]`;
 
-    function handleMouseMove(event) {
-        if (isDragging) {
-            let mouseX = event.clientX - canvas.offsetLeft;
-            let mouseY = event.clientY - canvas.offsetTop;
-            dialogue[selectedTextIndex].x = mouseX - offsetX;
-            dialogue[selectedTextIndex].y = mouseY - offsetY;
-            draw();
-        }
-    }
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
+    const data = await res.json();
+    const text = data.content.map(b=>b.text||'').join('');
+    cache[topic.id] = JSON.parse(text.replace(/```json|```/g,'').trim());
+  } catch(e){ cache[topic.id]=[]; }
+}
 
-    function handleMouseUp() {
-        isDragging = false;
-    }
+// ═══════════════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════════════
+function showDashboard(){
+  buildDashboard();
+  show('screen-main');
+  document.getElementById('footerDate').textContent = new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+}
+
+function buildDashboard(){
+  // Build tabs
+  const nav = document.getElementById('tabNav');
+  nav.innerHTML = TOPICS.map((t,i)=>`<button class="tab-btn${i===0?' active':''}" onclick="showTab('${t.id}',this)">${t.name}</button>`).join('');
+
+  // Build sections
+  const secs = document.getElementById('tabSections');
+  secs.innerHTML = TOPICS.map((t,i)=>`
+    <div class="dash-section${i===0?' active':''}" id="tab-${t.id}">
+      <div class="dash-section-header">
+        <div class="dash-section-eyebrow">Domain ${String(i+1).padStart(2,'0')} — ${t.name}</div>
+        <h2 class="dash-section-title">Today's <em>${t.name}</em> picks</h2>
+      </div>
+      <div class="orn"><div class="orn-line"></div><div class="orn-dia"></div><div class="orn-line"></div></div>
+      <div id="recs-${t.id}"></div>
+    </div>`).join('');
+
+  // Render all
+  TOPICS.forEach(t => renderRecs(t));
+
+  // Profile bar
+  buildProfileBar();
+
+  // Gen dots
+  const gd = document.getElementById('genDots');
+  if(gd) gd.innerHTML = TOPICS.map((_,i)=>`<div class="gen-dot" id="gdot${i}"></div>`).join('');
+}
+
+function renderRecs(topic){
+  const el = document.getElementById('recs-'+topic.id);
+  if(!el) return;
+  const items = cache[topic.id];
+  if(!items||!items.length){ el.innerHTML=`<div class="dash-error"><p>The muses were briefly unavailable.</p><button class="retry-lnk" onclick="retryTopic('${topic.id}')">Retry</button></div>`; return; }
+  el.innerHTML = `<div class="recs-grid">${items.map((item,i)=>`
+    <div class="rec-card">
+      <div class="rec-card-stripe" style="background:${topic.color}"></div>
+      <div class="rec-num">${String(i+1).padStart(2,'0')} / ${String(items.length).padStart(2,'0')}</div>
+      <div class="rec-title">${esc(item.title)}</div>
+      <div class="rec-meta">${esc(item.creator||'')}${item.creator&&item.type?' · ':''}${esc(item.type||'')}</div>
+      <div class="rec-why">${esc(item.why||'')}</div>
+      <span class="rec-tag" style="color:${topic.color}">${esc(item.tag||topic.name)}</span>
+    </div>`).join('')}</div>`;
+}
+
+async function retryTopic(id){
+  const topic = TOPICS.find(t=>t.id===id);
+  document.getElementById('recs-'+id).innerHTML='<div class="dash-loading"><div class="dash-spinner"></div><p>Trying again…</p></div>';
+  await fetchRecs(topic);
+  localStorage.setItem(CK,JSON.stringify(cache));
+  renderRecs(topic);
+}
+
+function buildProfileBar(){
+  const bar = document.getElementById('profileBar');
+  const tags = [];
+  TOPICS.forEach(t=>{
+    const ans = answers[t.id]||[];
+    ans.slice(0,3).forEach(a=>{ if(a.a[0]) tags.push({label:a.a[0],hi:tags.length%5===0}); });
+  });
+  bar.innerHTML = `<div class="profile-bar-title">Vidhan's taste — <em style="font-style:italic;color:var(--saffron)">mapped.</em></div><div class="profile-tags">${tags.slice(0,24).map(t=>`<span class="profile-tag${t.hi?' hi':''}">${esc(t.label)}</span>`).join('')}</div>`;
+}
+
+function showTab(id, btn){
+  document.querySelectorAll('.dash-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  if(btn) btn.classList.add('active');
+}
+
+function retakeQuiz(){
+  localStorage.removeItem(SK); localStorage.removeItem(CK); localStorage.removeItem(CDK);
+  answers={}; cache={}; topicIdx=0; qIdx=0;
+  show('screen-welcome');
+}
+
+// ═══════════════════════════════════════════════
+// COUNTDOWN
+// ═══════════════════════════════════════════════
+function startCountdown(){
+  function tick(){
+    const now=new Date(), mid=new Date(now); mid.setHours(24,0,0,0);
+    const d=mid-now, h=String(Math.floor(d/3600000)).padStart(2,'0'), m=String(Math.floor(d%3600000/60000)).padStart(2,'0'), s=String(Math.floor(d%60000/1000)).padStart(2,'0');
+    const el=document.getElementById('countdown'); if(el) el.textContent=`${h}:${m}:${s}`;
+  }
+  tick(); setInterval(tick,1000);
+}
 </script>
 </body>
 </html>
+HTMLEOF
+echo "Done: $(wc -l < /home/claude/vidhan.html) lines"
+Output
+
+Done: 694 lines
